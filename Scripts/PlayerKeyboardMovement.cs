@@ -20,10 +20,14 @@ public class PlayerKeyboardMovement : MonoBehaviour
 
     private bool isGrounded;
 
+    [Header("Raycast propeties")]
 
+    Ray ray;
+    public float MaxRayDist;
+    public string groundTag = "JumpTrigger";
     void Start()
     {
-        
+        //is empty
     }
 
     void Update()
@@ -46,30 +50,24 @@ public class PlayerKeyboardMovement : MonoBehaviour
             Debug.Log("Jump key pressed But Cannot jump");
         }
 
-        
-
-        
-   }
-    // outsite update
-    void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("Collision detected");
-        if (collision.gameObject.CompareTag("JumpTrigger"))
+        if(Physics.Raycast(ray, out RaycastHit hit, MaxRayDist))
         {
-            isGrounded = true;
-            Debug.Log("Is Grounded ✅");
-        }
-    
-    }
-
-    void OnCollisionExit(Collision collision)
-        {
-            if (collision.gameObject.CompareTag("JumpTrigger"))
+            if (hit.collider.CompareTag(groundTag))
             {
-                isGrounded = false;
-                Debug.Log("Is Not Grounded ❌");
+                isGrounded = true;
+                Debug.Log("Is Grounded By Ray V 〰️");
+                Debug.DrawLine(rayOrigin,rayOrigin + Vector3.down * MaxRayDist, Color.green);
             }
         }
+        else
+        {
+            isGrounded = false;
+            Debug.Log("Not Grounded By Ray X 〰️");
+            Debug.DrawLine(rayOrigin,rayOrigin + Vector3.down * MaxRayDist, Color.red);
+        }
+
+   }
+    // outsite update
 }
 
 
