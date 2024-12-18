@@ -1,6 +1,6 @@
 //made by NepNath 
 //Creation Date: 03/12/2024
-//last edited: 03/12/2024
+//last edited: 18/12/2024
 
 //this script has been made for keyboard input, which mean they have not been tested with a controller.
 //another script shall be made for controller input.
@@ -54,7 +54,7 @@ public class PlayerKeyboardMovement : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         Debug.Log("Collision detected");
-        if (collision.gameObject.CompareTag("sol"))
+        if (collision.gameObject.CompareTag("JumpTrigger"))
         {
             isGrounded = true;
             Debug.Log("Is Grounded ✅");
@@ -64,13 +64,12 @@ public class PlayerKeyboardMovement : MonoBehaviour
 
     void OnCollisionExit(Collision collision)
         {
-            if (collision.gameObject.CompareTag("sol"))
+            if (collision.gameObject.CompareTag("JumpTrigger"))
             {
                 isGrounded = false;
                 Debug.Log("Is Not Grounded ❌");
             }
         }
 }
-
 
 
