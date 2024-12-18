@@ -4,6 +4,7 @@
 
 //this script has been made for keyboard input, which mean they have not been tested with a controller.
 //another script shall be made for controller input.
+//⚠️⚠️⚠️ THIS SCRIPT IS INTENDED FOR A SCENE WITH A STATIC CAMERA ⚠️⚠️⚠️
 
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
@@ -32,24 +33,26 @@ public class PlayerKeyboardMovement : MonoBehaviour
 
     void Update()
     {
+        //--------------------------------------input declartion--------------------------------------
         float HorizontalInput = Input.GetAxis("Horizontal");
         float VerticalInput = Input.GetAxis("Vertical");
+        Vector3 moveDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
         
+        //--------------------------------------Raycast creation--------------------------------------
+        ray = new Ray(transform.position, Vector3.down);
+        Vector3 rayOrigin = transform.position;
+        Debug.DrawLine(rayOrigin,rayOrigin + Vector3.down * MaxRayDist, Color.blue);
 
-        transform.Translate(new Vector3(HorizontalInput, 0, VerticalInput) * speed * Time.deltaTime);
-    
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true)
+        //--------------------------------------Player Movement--------------------------------------
+        if (moveDirection != Vector3.zero)
         {
-           Rigidbody.AddForce(0, JumpForce, 0, ForceMode.Impulse);
+            transform.position += moveDirection * speed * Time.deltaTime;
+
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, TurnSpeed * Time.deltaTime);
         }
 
-        // debug log for key presses
-        //Jump keys
-        if (Input.GetKeyDown("space") && isGrounded == false) 
-        {
-            Debug.Log("Jump key pressed But Cannot jump");
-        }
-
+        //--------------------------------------jump raycast--------------------------------------
         if(Physics.Raycast(ray, out RaycastHit hit, MaxRayDist))
         {
             if (hit.collider.CompareTag(groundTag))
@@ -64,6 +67,12 @@ public class PlayerKeyboardMovement : MonoBehaviour
             isGrounded = false;
             Debug.Log("Not Grounded By Ray X 〰️");
             Debug.DrawLine(rayOrigin,rayOrigin + Vector3.down * MaxRayDist, Color.red);
+        }
+
+        //--------------------------------------jump input--------------------------------------
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true)
+        {
+           Rigidbody.AddForce(0, JumpForce, 0, ForceMode.Impulse);
         }
 
    }
