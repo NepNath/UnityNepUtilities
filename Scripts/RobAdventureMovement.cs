@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -21,59 +22,74 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 10f;
     public float JumpForce = 10;
     public Rigidbody Rigidbody;
+    public float TurnSpeed;
 
     private bool isGrounded;
+    [Header("Raycast propeties")]
 
+    Ray ray;
+    public float MaxRayDist = 100;
+    public string groundTag = "JumpTrigger";
     
     // Start is called before the first frame update
     void Start()
     {
         
         
+        
     }
 
     // Update is called once per frame
     void Update()
-    {
-        if (Input.GetAxisRaw("Horizontal") != 0)
+    {   
+        //raycast declaration   
+        ray = new Ray(transform.position, Vector3.down);
+        Vector3 rayOrigin = transform.position;
+        Debug.DrawLine(rayOrigin,rayOrigin + Vector3.down * MaxRayDist, Color.blue);
+
+
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        float verticalInput = Input.GetAxisRaw("Vertical");
+
+        Vector3 moveDirection = new Vector3(horizontalInput, 0, verticalInput).normalized;
+
+        if (moveDirection != Vector3.zero)
         {
-            transform.position += new Vector3(Input.GetAxisRaw("Horizontal") * speed * Time.deltaTime, 0, 0);
-            Debug.Log("Horizontal" + Input.GetAxisRaw("Horizontal"));
+            transform.position += moveDirection * speed * Time.deltaTime;
+
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, TurnSpeed * Time.deltaTime);
         }
-        if (Input.GetAxisRaw("Vertical") != 0)
-        {
-            transform.position += new Vector3(0, 0, Input.GetAxisRaw("Vertical") * speed * Time.deltaTime);
-            Debug.Log("Vertical" + Input.GetAxisRaw("Vertical"));
-        }
+
+        //jump for button
         if (Input.GetKeyDown(KeyCode.JoystickButton0) && isGrounded == true) // equivalent of 'X'/'A'
         {
            Rigidbody.AddForce(0, JumpForce, 0, ForceMode.Impulse);
            Debug.Log("Jump key  pressed");
         }
-        
-        if (Input.GetKeyDown(KeyCode.JoystickButton0) && isGrounded == false) // Debug if the player tries to jump but is not grounded
+        //jump for keyboard
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded == true) // equivalent of 'X'/'A'
         {
-            Debug.Log("Jump key pressed But Cannot jump");
+           Rigidbody.AddForce(0, JumpForce, 0, ForceMode.Impulse);
+           Debug.Log("Jump key  pressed");
         }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("Collision detected");
-        if (collision.gameObject.CompareTag("JumpTrigger"))
+        //raycast
+        if(Physics.Raycast(ray, out RaycastHit hit, MaxRayDist))
         {
-            isGrounded = true;
-            Debug.Log("Is Grounded ✅");
-        }
-    
-    }
-
-    void OnCollisionExit(Collision collision)
-        {
-            if (collision.gameObject.CompareTag("JumpTrigger"))
+            if (hit.collider.CompareTag(groundTag))
             {
-                isGrounded = false;
-                Debug.Log("Is Not Grounded ❌");
+                isGrounded = true;
+                Debug.Log("Is Grounded By Ray V 〰️");
+                Debug.DrawLine(rayOrigin,rayOrigin + Vector3.down * MaxRayDist, Color.green);
             }
         }
+        else
+        {
+            isGrounded = false;
+            Debug.Log("Not Grounded By Ray X 〰️");
+            Debug.DrawLine(rayOrigin,rayOrigin + Vector3.down * MaxRayDist, Color.red);
+        }
     }
+
 }
