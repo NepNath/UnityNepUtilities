@@ -4,7 +4,8 @@
 
 //this script has been made for keyboard input, which mean they have not been tested with a controller.
 //another script shall be made for controller input.
-//⚠️⚠️⚠️ THIS SCRIPT IS INTENDED FOR A SCENE WITH A STATIC CAMERA ⚠️⚠️⚠️
+//⚠️ This script is made for a static camera due to the player's rotation that would not follow a 3d person camera
+// (Inputs would not follow the camera rotation so would be inverted because of the rotation)
 
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
